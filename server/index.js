@@ -194,10 +194,14 @@ app.post('/login', async (req, res) => {
 
 })
 
+app.get('/do', (req, res) => {
+    isEmail = "lol@gmail.com";
+})
 
 app.get('/',cors(), (req, res) => {
 
-    res.send("Hello")
+
+    res.send(isEmail + "Hello")
 })
 
 app.get('/ordersData', cors(), (req, res) => {
