@@ -203,6 +203,8 @@ app.get('/ordersData', cors(), (req, res) => {
 })
 
 app.post('/ordersData', (req, res) => {
+
+    console.log("run");
     const { userID, order, name, email, number, address, instructions, paymentMethod } = req.body;
     const date = JSON.stringify(new Date())
     const rawDate = new Date()
