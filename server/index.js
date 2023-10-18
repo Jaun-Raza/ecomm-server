@@ -10,10 +10,9 @@ import cookieParser from "cookie-parser";
 import 'dotenv/config';
 
 const app = express();
-const port = 2000;
+const port = 1000;
 const dbName = "ecommDB";
 const url = "mongodb+srv://jaundev768:DevOps123@cluster-1.szlfag2.mongodb.net/";
-// const url = "mongodb://127.0.0.1:27017/";
 
 app.use(cors());
 app.use(express.json());
@@ -155,7 +154,6 @@ app.post('/signin', (req, res) => {
             })
         }
     })
-    isEmail = email;
 
 
 })
@@ -177,7 +175,6 @@ app.post('/login', async (req, res) => {
         req.login(user, function (err) {
             if (err) {
                 console.log(err);
-                isEmail = email;
             } else {
                 passport.authenticate("local")(req, res, () => {
                     isAuthenticated = req.isAuthenticated();
@@ -187,21 +184,18 @@ app.post('/login', async (req, res) => {
         })
     }
 
-    console.log("done" + email);
 
-    
-
-
-})
-
-app.get('/do', (req, res) => {
-    isEmail = "lol@gmail.com";
 })
 
 app.get('/',cors(), (req, res) => {
 
+    const userData = {
+        isAuthenticated: isAuthenticated,
+        email: isEmail,
+    }
 
-    res.send(isEmail + "Hello")
+    console.log(userData);
+    res.send(userData)
 })
 
 app.get('/ordersData', cors(), (req, res) => {
