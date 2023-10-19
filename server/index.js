@@ -155,14 +155,15 @@ app.get('/', (req, res) => {
             isAuthenticated: false,
             email: "",
         }
+    res.send(userData);
     } else {
         const userData = {
             isAuthenticated: isAuthenticated,
             email: isEmail,
         }
+    res.send(userData);
     }
     
-    res.send(userData);
 })
 
 app.post('/signin', (req, res) => {
