@@ -201,7 +201,7 @@ app.post('/login', async (req, res) => {
 
 app.post('/ordersData', (req, res) => {
     const { userID, order, name, email, number, address, instructions, paymentMethod } = req.body;
-    const Date = JSON.stringify(new Date())
+    const stringDate = JSON.stringify(new Date())
     const newDate = new Date()
 
     const newOrder = new Order({
@@ -215,7 +215,7 @@ app.post('/ordersData', (req, res) => {
         paymentMethod: paymentMethod,
         isReturn: false,
         isDelivered: false,
-        date: Date.slice(1, 11) + " " + newDate.getHours() + ":" + newDate.getMinutes()
+        date: stringDate.slice(1, 11) + " " + newDate.getHours() + ":" + newDate.getMinutes()
     })
 
     newOrder.save();
