@@ -232,8 +232,8 @@ app.post('/ordersData', (req, res) => {
 
 app.get('/myOrders', (req, res) => {
     if (isEmail !== "") {
-        User.find({ username: isEmail }).then((foundOrder) => {
-            res.send(foundOrder[0].orders)
+        User.find({}).then((foundOrder) => {
+            res.send(foundOrder)
         })
     }
 })
