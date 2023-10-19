@@ -9,12 +9,12 @@ import 'dotenv/config';
 import cookieParser from "cookie-parser";
 import cors from "cors";
 
-app.use(cors());
 const app = express();
 const port = 1000;
 const dbName = "ecommDB";
 const url = "mongodb+srv://jaundev768:DevOps123@cluster-1.szlfag2.mongodb.net/";
 
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(session({
