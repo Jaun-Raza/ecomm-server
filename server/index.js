@@ -7,7 +7,9 @@ import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import findOrCreate from 'mongoose-findorcreate';
 import 'dotenv/config';
 import cookieParser from "cookie-parser";
+import cors from "cors";
 
+app.use(cors());
 const app = express();
 const port = 1000;
 const dbName = "ecommDB";
