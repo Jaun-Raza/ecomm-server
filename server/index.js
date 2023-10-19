@@ -128,7 +128,7 @@ passport.deserializeUser(function (user, cb) {
 app.use(passport.initialize());
 app.use(passport.session());
 
-})
+
 
 app.get('/auth/google',
     passport.authenticate('google', { scope: ['profile', 'email'] })
@@ -177,7 +177,7 @@ app.post('/login', async (req, res) => {
             }
         })
     }
-
+})
 
 app.get('/', cors(), (req, res) => {
 
