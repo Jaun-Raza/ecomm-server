@@ -22,7 +22,25 @@ app.use(session({
     resave: true,
     saveUninitialized: true
 }));
-app.use(cookieParser("secretcode"));
+app.use(express.cookieParser());
+
+// set a cookie
+app.use(function (req, res, next) {
+  // check if client sent cookie
+  var cookie = req.cookies.cookieName;
+  if (cookie === undefined) {
+    // no: set a new cookie
+    var randomNumber=Math.random().toString();
+    randomNumber=randomNumber.substring(2,randomNumber.length);
+    res.cookie('RazaStoreUser',randomNumber, { maxAge: 900000, httpOnly: true });
+    console.log('cookie created successfully');
+  } else {
+    // yes, cookie was already present 
+    console.log('cookie exists', cookie);
+  } 
+  next(); // <-- important!
+});
+
 
 mongoose.connect(url + dbName, { useNewUrlParser: true });
 
@@ -154,7 +172,7 @@ app.post('/signin', (req, res) => {
             })
         }
     })
-console.log("run");
+
 
 })
 
@@ -183,7 +201,7 @@ app.post('/login', async (req, res) => {
             }
         })
     }
-console.log("run login")
+
 
 })
 
@@ -203,8 +221,6 @@ app.get('/ordersData', cors(), (req, res) => {
 })
 
 app.post('/ordersData', (req, res) => {
-
-    console.log("run");
     const { userID, order, name, email, number, address, instructions, paymentMethod } = req.body;
     const date = JSON.stringify(new Date())
     const rawDate = new Date()
