@@ -24,7 +24,7 @@ app.use(session({
     saveUninitialized: false,
     secure: false, // or remove this line
     cookie: {
-         domain: "https://client-kappa-rouge-53.vercel.app",
+         domain: "https://ecommserver-pado7k34.b4a.run/",
         maxAge: 1000 * 60 * 60 * 24, // Set your desired expiration time
     },
 }));
