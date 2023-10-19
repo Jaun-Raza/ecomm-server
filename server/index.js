@@ -285,11 +285,8 @@ app.get('/allOrders132', (req, res) => {
 
 app.get('/orders/:id', (req, res) => {
     if (isEmail !== "") {
-        User.find({ username: isEmail }).then((foundUser) => {
-            const userOrders = foundUser[0].orders;
-            const order = userOrders.find((order) => order.userID === req.params.id);
-
-            res.send(order);
+        User.find({}).then((foundUser) => {
+            res.send(foundUser);
         }).catch(err => {
             console.log(err);
         })
