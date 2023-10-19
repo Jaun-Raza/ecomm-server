@@ -21,7 +21,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(session({
     secret: 'Thisisoursecret.',
     resave: false,
-    saveUninitialized: false,
+    saveUninitialized: true,
     secure: false, // or remove this line
     cookie: {
          // domain: "https://ecommserver-pado7k34.b4a.run/",
