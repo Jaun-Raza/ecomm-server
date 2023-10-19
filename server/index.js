@@ -7,6 +7,7 @@ import passportLocalMongoose from "passport-local-mongoose";
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import findOrCreate from 'mongoose-findorcreate';
 import 'dotenv/config';
+const MongoStore = require('connect-mongo')(session);
 
 const app = express();
 const port = 1000;
