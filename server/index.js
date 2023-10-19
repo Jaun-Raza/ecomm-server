@@ -22,7 +22,7 @@ app.use(session({
     resave: true,
     saveUninitialized: true
 }));
-app.use(express.cookieParser());
+app.use(cookieParser());
 
 // set a cookie
 app.use(function (req, res, next) {
