@@ -10,7 +10,7 @@ import cookieParser from "cookie-parser";
 import 'dotenv/config';
 
 const app = express();
-const port = 1000;
+const port = 2000;
 const dbName = "ecommDB";
 const url = "mongodb+srv://jaundev768:DevOps123@cluster-1.szlfag2.mongodb.net/";
 
@@ -19,27 +19,10 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(session({
     secret: "Thisisoursecret.",
-    resave: true,
-    saveUninitialized: true
+    resave: false,
+    saveUninitialized: false
 }));
 app.use(cookieParser());
-
-// set a cookie
-app.use(function (req, res, next) {
-  // check if client sent cookie
-  var cookie = req.cookies.cookieName;
-  if (cookie === undefined) {
-    // no: set a new cookie
-    var randomNumber=Math.random().toString();
-    randomNumber=randomNumber.substring(2,randomNumber.length);
-    res.cookie('RazaStoreUser',randomNumber, { maxAge: 900000, httpOnly: true });
-    console.log('cookie created successfully');
-  } else {
-    // yes, cookie was already present 
-    console.log('cookie exists', cookie);
-  } 
-  next(); // <-- important!
-});
 
 
 mongoose.connect(url + dbName, { useNewUrlParser: true });
@@ -166,8 +149,7 @@ app.post('/signin', (req, res) => {
             console.log(err);
         } else {
             passport.authenticate("local")(req, res, () => {
-                res.status(200)
-                isAuthenticated = true;
+                isAuthenticated = req.isAuthenticated();
                 isEmail = user.username
             })
         }
