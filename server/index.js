@@ -122,16 +122,6 @@ passport.use(new GoogleStrategy({
     }
 ));
 
-passport.serializeUser(function (user, cb) {
-    cb(null, user);
-});
-
-passport.deserializeUser(function (user, cb) {
-    cb(null, user);
-});
-
-app.use(passport.initialize());
-app.use(passport.session());
 
 
 app.get('/auth/google',
@@ -148,13 +138,6 @@ app.get('/', (req, res) => {
         isAuthenticated: isAuthenticated,
         email: isEmail,
     }
-
-    req.session.myVariable = 'Hello, World!';
-    const sessionData = req.session.myVariable || 'No session data';
-
-    console.log(sessionData);
-    console.log(userData);
-    console.log(req.isAuthenticated());
     
     res.send(userData);
 })
@@ -169,8 +152,7 @@ app.post('/signin', (req, res) => {
         } else {
             passport.authenticate("local")(req, res, () => {
                 isAuthenticated = true;
-                isEmail = user.username
-                req.session.email = user.username;
+                isEmail = user.username;
             })
         }
     })
@@ -195,7 +177,6 @@ app.post('/login', async (req, res) => {
                 passport.authenticate("local")(req, res, () => {
                     isAuthenticated = req.isAuthenticated();
                     isEmail = email;
-                    req.session.email = email;
 
                 })
             }
@@ -203,6 +184,16 @@ app.post('/login', async (req, res) => {
     }
 })
 
+passport.serializeUser(function (user, cb) {
+    cb(null, user);
+});
+
+passport.deserializeUser(function (user, cb) {
+    cb(null, user);
+});
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 
 
