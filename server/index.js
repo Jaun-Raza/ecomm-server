@@ -6,6 +6,7 @@ import passportLocalMongoose from "passport-local-mongoose";
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import findOrCreate from 'mongoose-findorcreate';
 import 'dotenv/config';
+import cookieParser from "cookie-parser";
 
 const app = express();
 const port = 1000;
@@ -18,7 +19,14 @@ app.use(session({
     secret: 'Thisisoursecret.',
     resave: false,
     saveUninitialized: false,
+    domain: false, // or remove this line
+    secure: false, // or remove this line
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 24, // Set your desired expiration time
+    },
 }));
+
+app.use(cookieParser());
 
 
 mongoose.connect(url + dbName, { useNewUrlParser: true });
