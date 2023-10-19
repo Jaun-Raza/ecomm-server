@@ -6,7 +6,6 @@ import passport from 'passport';
 import passportLocalMongoose from "passport-local-mongoose";
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import findOrCreate from 'mongoose-findorcreate';
-import cookieParser from "cookie-parser";
 import 'dotenv/config';
 
 const app = express();
@@ -22,7 +21,9 @@ app.use(session({
     resave: false,
     saveUninitialized: false
 }));
-app.use(cookieParser("Thisisoursecret."));
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 
 mongoose.connect(url + dbName, { useNewUrlParser: true });
@@ -123,8 +124,6 @@ passport.deserializeUser(function (user, cb) {
     cb(null, user)
 });
 
-app.use(passport.initialize());
-app.use(passport.session());
 
 
 app.get('/auth/google',
@@ -134,11 +133,6 @@ app.get('/auth/google',
 app.get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: 'https://client-kappa-rouge-53.vercel.app/signup', successRedirect: "https://client-kappa-rouge-53.vercel.app/" })
 );
-
-app.get('/signin', cors(), (req, res) => {
-
-})
-
 
 app.post('/signin', (req, res) => {
 
@@ -155,10 +149,6 @@ app.post('/signin', (req, res) => {
         }
     })
 
-
-})
-
-app.get('/login', cors(), (req, res) => {
 
 })
 
@@ -187,7 +177,7 @@ app.post('/login', async (req, res) => {
 
 })
 
-app.get('/',cors(), (req, res) => {
+app.get('/', cors(), (req, res) => {
 
     const userData = {
         isAuthenticated: isAuthenticated,
@@ -196,10 +186,6 @@ app.get('/',cors(), (req, res) => {
 
     console.log(userData);
     res.send(userData)
-})
-
-app.get('/ordersData', cors(), (req, res) => {
-
 })
 
 app.post('/ordersData', (req, res) => {
