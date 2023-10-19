@@ -113,20 +113,16 @@ passport.use(new GoogleStrategy({
     }
 ));
 
-
 passport.serializeUser(function (user, cb) {
     cb(null, user);
-    console.log(user);
 });
 
 passport.deserializeUser(function (user, cb) {
     cb(null, user);
-    console.log(user);
 });
 
 
-app.use(passport.initialize());
-app.use(passport.session());
+
 
 
 
@@ -179,6 +175,9 @@ app.post('/login', async (req, res) => {
     }
 })
 
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.get('/', cors(), (req, res) => {
 
     const userData = {
@@ -188,6 +187,7 @@ app.get('/', cors(), (req, res) => {
 
     console.log(userData);
     res.send(userData)
+    console.log(req.isAuthenticated());
 })
 
 app.post('/ordersData', (req, res) => {
