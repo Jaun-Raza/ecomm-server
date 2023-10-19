@@ -121,9 +121,8 @@ passport.deserializeUser(function (user, cb) {
     cb(null, user);
 });
 
-
-
-
+app.use(passport.initialize());
+app.use(passport.session());
 
 
 app.get('/auth/google',
@@ -175,8 +174,7 @@ app.post('/login', async (req, res) => {
     }
 })
 
-app.use(passport.initialize());
-app.use(passport.session());
+
 
 app.get('/', cors(), (req, res) => {
 
