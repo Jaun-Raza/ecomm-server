@@ -17,13 +17,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(session({
-    secret: "Thisisoursecret.",
+    secret: 'Thisisoursecret.',
     resave: false,
-    saveUninitialized: false
+    saveUninitialized: false,
+    store: new MongoStore({ mongooseConnection: mongoose.connection })
 }));
-
-app.use(passport.initialize());
-app.use(passport.session());
 
 
 mongoose.connect(url + dbName, { useNewUrlParser: true });
@@ -116,14 +114,6 @@ passport.use(new GoogleStrategy({
     }
 ));
 
-passport.serializeUser(function (user, cb) {
-    cb(null, user);
-});
-
-passport.deserializeUser(function (user, cb) {
-    cb(null, user)
-});
-
 
 
 app.get('/auth/google',
@@ -174,6 +164,19 @@ app.post('/login', async (req, res) => {
         })
     }
 
+passport.serializeUser(function (user, cb) {
+    cb(null, user);
+    console.log(user);
+});
+
+passport.deserializeUser(function (user, cb) {
+    cb(null, user);
+    console.log(user);
+});
+
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 })
 
