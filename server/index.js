@@ -148,7 +148,8 @@ app.get('/', (req, res) => {
         email: isEmail,
     }
 
-    const sessionData = req.session.email || 'No session data';
+    req.session.myVariable = 'Hello, World!';
+    const sessionData = req.session.myVariable || 'No session data';
 
     console.log(sessionData);
     console.log(userData);
