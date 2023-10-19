@@ -10,7 +10,7 @@ import cookieParser from "cookie-parser";
 import 'dotenv/config';
 
 const app = express();
-const port = 2000;
+const port = 1000;
 const dbName = "ecommDB";
 const url = "mongodb+srv://jaundev768:DevOps123@cluster-1.szlfag2.mongodb.net/";
 
