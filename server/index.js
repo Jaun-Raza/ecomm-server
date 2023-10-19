@@ -114,6 +114,21 @@ passport.use(new GoogleStrategy({
 ));
 
 
+passport.serializeUser(function (user, cb) {
+    cb(null, user);
+    console.log(user);
+});
+
+passport.deserializeUser(function (user, cb) {
+    cb(null, user);
+    console.log(user);
+});
+
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+})
 
 app.get('/auth/google',
     passport.authenticate('google', { scope: ['profile', 'email'] })
@@ -163,21 +178,6 @@ app.post('/login', async (req, res) => {
         })
     }
 
-passport.serializeUser(function (user, cb) {
-    cb(null, user);
-    console.log(user);
-});
-
-passport.deserializeUser(function (user, cb) {
-    cb(null, user);
-    console.log(user);
-});
-
-
-app.use(passport.initialize());
-app.use(passport.session());
-
-})
 
 app.get('/', cors(), (req, res) => {
 
