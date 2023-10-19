@@ -152,7 +152,7 @@ app.get('/set-cookie', (req, res) => {
         // httpOnly: true, // Make the cookie accessible only through HTTP(S) requests.
         secure: true, // Send the cookie over HTTPS only in a secure environment.
         sameSite: 'lax', // Set the SameSite attribute (lax for CSRF protection).
-        domain: 'https://client-kappa-rouge-53.vercel.app', // Include the leading dot for subdomains.
+        // domain: 'https://client-kappa-rouge-53.vercel.app', // Include the leading dot for subdomains.
     });
 
     res.send('Session cookie set');
