@@ -22,7 +22,7 @@ app.use(session({
     resave: false,
     saveUninitialized: false
 }));
-app.use(cookieParser());
+app.use(cookieParser("Thisisoursecret."));
 
 
 mongoose.connect(url + dbName, { useNewUrlParser: true });
