@@ -22,6 +22,7 @@ app.use(session({
     secret: 'Thisisoursecret.',
     resave: false,
     saveUninitialized: true,
+    http:true,
     secure: true, // or remove this line
     cookie: {
         domain: "https://client-kappa-rouge-53.vercel.app",
