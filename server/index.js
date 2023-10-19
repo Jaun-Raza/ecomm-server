@@ -148,6 +148,9 @@ app.get('/', (req, res) => {
         email: isEmail,
     }
 
+    const sessionData = req.session.email || 'No session data';
+
+    console.log(sessionData);
     console.log(userData);
     console.log(req.isAuthenticated());
     
@@ -165,6 +168,7 @@ app.post('/signin', (req, res) => {
             passport.authenticate("local")(req, res, () => {
                 isAuthenticated = true;
                 isEmail = user.username
+                req.session.email = user.username;
             })
         }
     })
@@ -189,6 +193,8 @@ app.post('/login', async (req, res) => {
                 passport.authenticate("local")(req, res, () => {
                     isAuthenticated = req.isAuthenticated();
                     isEmail = email;
+                    req.session.email = email;
+
                 })
             }
         })
