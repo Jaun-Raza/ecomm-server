@@ -1,6 +1,5 @@
 import express from "express";
 import mongoose from "mongoose";
-import cors from "cors";
 import session from "express-session";
 import passport from 'passport';
 import passportLocalMongoose from "passport-local-mongoose";
@@ -13,7 +12,6 @@ const port = 1000;
 const dbName = "ecommDB";
 const url = "mongodb+srv://jaundev768:DevOps123@cluster-1.szlfag2.mongodb.net/";
 
-app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(session({
@@ -133,6 +131,19 @@ app.get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: 'https://client-kappa-rouge-53.vercel.app/signup', successRedirect: "https://client-kappa-rouge-53.vercel.app/" })
 );
 
+app.get('/', (req, res) => {
+
+    const userData = {
+        isAuthenticated: isAuthenticated,
+        email: isEmail,
+    }
+
+    console.log(userData);
+    console.log(req.isAuthenticated());
+    
+    res.send(userData);
+})
+
 app.post('/signin', (req, res) => {
 
     const { email, password } = req.body;
@@ -142,7 +153,7 @@ app.post('/signin', (req, res) => {
             console.log(err);
         } else {
             passport.authenticate("local")(req, res, () => {
-                isAuthenticated = req.isAuthenticated();
+                isAuthenticated = true;
                 isEmail = user.username
             })
         }
@@ -176,17 +187,6 @@ app.post('/login', async (req, res) => {
 
 
 
-app.get('/', cors(), (req, res) => {
-
-    const userData = {
-        isAuthenticated: isAuthenticated,
-        email: isEmail,
-    }
-
-    console.log(userData);
-    res.send(userData)
-    console.log(req.isAuthenticated());
-})
 
 app.post('/ordersData', (req, res) => {
     const { userID, order, name, email, number, address, instructions, paymentMethod } = req.body;
@@ -219,7 +219,7 @@ app.post('/ordersData', (req, res) => {
 
 })
 
-app.get('/myOrders', cors(), (req, res) => {
+app.get('/myOrders', (req, res) => {
     if (isEmail) {
         User.find({ username: isEmail }).then((foundOrder) => {
             res.send(foundOrder[0].orders)
@@ -228,7 +228,7 @@ app.get('/myOrders', cors(), (req, res) => {
 })
 
 
-app.get('/productsData', cors(), (req, res) => {
+app.get('/productsData', (req, res) => {
     try {
         Product.find({}).then((foundData) => {
             res.send(foundData)
@@ -238,7 +238,7 @@ app.get('/productsData', cors(), (req, res) => {
     }
 })
 
-app.get('/productsData/:id', cors(), (req, res) => {
+app.get('/productsData/:id', (req, res) => {
     try {
         Product.find({ id: req.params.id }).then((foundData) => {
             res.send(foundData[0])
@@ -248,7 +248,7 @@ app.get('/productsData/:id', cors(), (req, res) => {
     }
 })
 
-app.get("/logout", cors(), (req, res) => {
+app.get("/logout", (req, res) => {
     req.logout((err) => {
         if (err) {
             console.log(err);
@@ -264,7 +264,7 @@ app.get("/logout", cors(), (req, res) => {
     isEmail = "";
 })
 
-app.get('/allOrders132', cors(), (req, res) => {
+app.get('/allOrders132', (req, res) => {
     Order.find({}).then((order) => {
         res.send(order);
     }).catch(err => {
@@ -272,7 +272,7 @@ app.get('/allOrders132', cors(), (req, res) => {
     })
 })
 
-app.get('/orders/:id', cors(), (req, res) => {
+app.get('/orders/:id', (req, res) => {
     if (isEmail) {
         User.find({ username: isEmail }).then((foundUser) => {
             const userOrders = foundUser[0].orders;
@@ -285,7 +285,7 @@ app.get('/orders/:id', cors(), (req, res) => {
     }
 })
 
-app.get('/allOrders/:id', cors(), (req, res) => {
+app.get('/allOrders/:id', (req, res) => {
     Order.find({ userID: req.params.id }).then((order) => {
         res.send(order[0]);
     }).catch(err => {
