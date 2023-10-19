@@ -201,8 +201,23 @@ app.post('/login', async (req, res) => {
 
 app.post('/ordersData', (req, res) => {
     const { userID, order, name, email, number, address, instructions, paymentMethod } = req.body;
-    const stringDate = JSON.stringify(new Date())
-    const newDate = new Date()
+    // Create a new Date object
+    const currentDate = new Date();
+
+    // Adjust for Pakistan Standard Time (UTC+5)
+    const pstOffset = 5 * 60 * 60 * 1000; // 5 hours in milliseconds
+    const pstDate = new Date(currentDate.getTime() + pstOffset);
+
+    // Extract the components of the date and time
+    const year = pstDate.getFullYear();
+    const month = pstDate.getMonth() + 1; // Months are 0-based, so add 1
+    const day = pstDate.getDate();
+    const hours = pstDate.getHours();
+    const minutes = pstDate.getMinutes();
+    const seconds = pstDate.getSeconds();
+
+    // Format the date and time in the "YYYY-MM-DD HH:MM:SS" format
+    const formattedDateTime = `${year}-${month < 10 ? '0' : ''}${month}-${day < 10 ? '0' : ''}${day} ${hours < 10 ? '0' : ''}${hours}:${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 
     const newOrder = new Order({
         userID: userID,
@@ -215,7 +230,7 @@ app.post('/ordersData', (req, res) => {
         paymentMethod: paymentMethod,
         isReturn: false,
         isDelivered: false,
-        date: stringDate.slice(1, 11) + " " + newDate.getHours() + ":" + newDate.getMinutes()
+        date: formattedDateTime
     })
 
     newOrder.save();
