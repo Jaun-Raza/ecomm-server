@@ -148,35 +148,18 @@ app.get('/auth/google/callback',
 
 app.get('/', (req, res) => {
 
-    const sessionId = req.cookies['connect.sid'] || "No Session Data";
-    
-    if(sessionId === "No Session Data") {
-        const userData = {
-            isAuthenticated: false,
-            email: "",
-        }
-    res.send(userData);
-    } else {
         const userData = {
             isAuthenticated: isAuthenticated,
             email: isEmail,
         }
     res.send(userData);
-    }
+    
     
 })
 
 app.post('/signin', (req, res) => {
 
     const { email, password } = req.body;
-
-    res.cookie('connect.sid', 's%3Ad1mnlQDUXMnsbAx3SbrPxfFxB6XxJMgZ.aUMBsWtHYJyt960OFXZeNO%2BJMaBzRrg9FPGMLBii9oA', {
-    maxAge: 1000 * 60 * 60 * 24, // Set the cookie's expiration time (in milliseconds).
-    // httpOnly: true, // Make the cookie accessible only through HTTP(S) requests.
-    secure: true, // Send the cookie over HTTPS only in a secure environment.
-     sameSite: 'lax', // Set the SameSite attribute (lax for CSRF protection).
-     // domain: 'https://client-kappa-rouge-53.vercel.app', // Include the leading dot for subdomains.
-     });
 
     User.register({ username: email }, password, function (err, user) {
         if (err) {
@@ -200,14 +183,6 @@ app.post('/login', async (req, res) => {
         username: email,
         password: password
     })
-    
-    res.cookie('connect.sid', 's%3Ad1mnlQDUXMnsbAx3SbrPxfFxB6XxJMgZ.aUMBsWtHYJyt960OFXZeNO%2BJMaBzRrg9FPGMLBii9oA', {
-    maxAge: 1000 * 60 * 60 * 24, // Set the cookie's expiration time (in milliseconds).
-    // httpOnly: true, // Make the cookie accessible only through HTTP(S) requests.
-    secure: true, // Send the cookie over HTTPS only in a secure environment.
-     sameSite: 'lax', // Set the SameSite attribute (lax for CSRF protection).
-     // domain: 'https://client-kappa-rouge-53.vercel.app', // Include the leading dot for subdomains.
-     });
 
     if (email !== "" && password !== "") {
         req.login(user, function (err) {
