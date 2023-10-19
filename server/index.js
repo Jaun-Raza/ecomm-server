@@ -123,6 +123,18 @@ passport.use(new GoogleStrategy({
 ));
 
 
+passport.serializeUser(function (user, cb) {
+    cb(null, user);
+});
+
+passport.deserializeUser(function (user, cb) {
+    cb(null, user);
+});
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+
 
 app.get('/auth/google',
     passport.authenticate('google', { scope: ['profile', 'email'] })
@@ -131,6 +143,21 @@ app.get('/auth/google',
 app.get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: 'https://client-kappa-rouge-53.vercel.app/signup', successRedirect: "https://client-kappa-rouge-53.vercel.app/" })
 );
+
+app.get('/set-cookie', (req, res) => {
+    // Set a session cookie with the name 'connect.sid' (or your desired name).
+    // The 'value' can be a unique identifier for the user.
+    res.cookie('connect.sid', 's%3Ad1mnlQDUXMnsbAx3SbrPxfFxB6XxJMgZ.aUMBsWtHYJyt960OFXZeNO%2BJMaBzRrg9FPGMLBii9oA', {
+        maxAge: 1000 * 60 * 60 * 24, // Set the cookie's expiration time (in milliseconds).
+        // httpOnly: true, // Make the cookie accessible only through HTTP(S) requests.
+        secure: true, // Send the cookie over HTTPS only in a secure environment.
+        sameSite: 'lax', // Set the SameSite attribute (lax for CSRF protection).
+        domain: 'https://client-kappa-rouge-53.vercel.app', // Include the leading dot for subdomains.
+    });
+
+    res.send('Session cookie set');
+});
+
 
 app.get('/', (req, res) => {
 
@@ -183,17 +210,6 @@ app.post('/login', async (req, res) => {
         })
     }
 })
-
-passport.serializeUser(function (user, cb) {
-    cb(null, user);
-});
-
-passport.deserializeUser(function (user, cb) {
-    cb(null, user);
-});
-
-app.use(passport.initialize());
-app.use(passport.session());
 
 
 
