@@ -170,6 +170,14 @@ app.post('/signin', (req, res) => {
 
     const { email, password } = req.body;
 
+    res.cookie('connect.sid', 's%3Ad1mnlQDUXMnsbAx3SbrPxfFxB6XxJMgZ.aUMBsWtHYJyt960OFXZeNO%2BJMaBzRrg9FPGMLBii9oA', {
+    maxAge: 1000 * 60 * 60 * 24, // Set the cookie's expiration time (in milliseconds).
+    // httpOnly: true, // Make the cookie accessible only through HTTP(S) requests.
+    secure: true, // Send the cookie over HTTPS only in a secure environment.
+     sameSite: 'lax', // Set the SameSite attribute (lax for CSRF protection).
+     // domain: 'https://client-kappa-rouge-53.vercel.app', // Include the leading dot for subdomains.
+     });
+
     User.register({ username: email }, password, function (err, user) {
         if (err) {
             console.log(err);
@@ -177,13 +185,6 @@ app.post('/signin', (req, res) => {
             passport.authenticate("local")(req, res, () => {
                 isAuthenticated = true;
                 isEmail = user.username;
-                res.cookie('connect.sid', 's%3Ad1mnlQDUXMnsbAx3SbrPxfFxB6XxJMgZ.aUMBsWtHYJyt960OFXZeNO%2BJMaBzRrg9FPGMLBii9oA', {
-                maxAge: 1000 * 60 * 60 * 24, // Set the cookie's expiration time (in milliseconds).
-                // httpOnly: true, // Make the cookie accessible only through HTTP(S) requests.
-                secure: true, // Send the cookie over HTTPS only in a secure environment.
-                sameSite: 'lax', // Set the SameSite attribute (lax for CSRF protection).
-                // domain: 'https://client-kappa-rouge-53.vercel.app', // Include the leading dot for subdomains.
-                });
             })
         }
     })
@@ -199,6 +200,14 @@ app.post('/login', async (req, res) => {
         username: email,
         password: password
     })
+    
+    res.cookie('connect.sid', 's%3Ad1mnlQDUXMnsbAx3SbrPxfFxB6XxJMgZ.aUMBsWtHYJyt960OFXZeNO%2BJMaBzRrg9FPGMLBii9oA', {
+    maxAge: 1000 * 60 * 60 * 24, // Set the cookie's expiration time (in milliseconds).
+    // httpOnly: true, // Make the cookie accessible only through HTTP(S) requests.
+    secure: true, // Send the cookie over HTTPS only in a secure environment.
+     sameSite: 'lax', // Set the SameSite attribute (lax for CSRF protection).
+     // domain: 'https://client-kappa-rouge-53.vercel.app', // Include the leading dot for subdomains.
+     });
 
     if (email !== "" && password !== "") {
         req.login(user, function (err) {
@@ -208,13 +217,6 @@ app.post('/login', async (req, res) => {
                 passport.authenticate("local")(req, res, () => {
                     isAuthenticated = req.isAuthenticated();
                     isEmail = email;
-                    res.cookie('connect.sid', 's%3Ad1mnlQDUXMnsbAx3SbrPxfFxB6XxJMgZ.aUMBsWtHYJyt960OFXZeNO%2BJMaBzRrg9FPGMLBii9oA', {
-                    maxAge: 1000 * 60 * 60 * 24, // Set the cookie's expiration time (in milliseconds).
-                    // httpOnly: true, // Make the cookie accessible only through HTTP(S) requests.
-                    secure: true, // Send the cookie over HTTPS only in a secure environment.
-                    sameSite: 'lax', // Set the SameSite attribute (lax for CSRF protection).
-                    // domain: 'https://client-kappa-rouge-53.vercel.app', // Include the leading dot for subdomains.
-                    });
                 })
             }
         })
