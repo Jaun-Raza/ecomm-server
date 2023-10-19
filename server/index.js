@@ -22,7 +22,7 @@ app.use(session({
     secret: 'Thisisoursecret.',
     resave: false,
     saveUninitialized: true,
-    secure: false, // or remove this line
+    secure: true, // or remove this line
     cookie: {
          // domain: "https://ecommserver-pado7k34.b4a.run/",
         maxAge: 1000 * 60 * 60 * 24, // Set your desired expiration time
