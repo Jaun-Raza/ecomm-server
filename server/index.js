@@ -14,6 +14,7 @@ const port = 1000;
 const dbName = "ecommDB";
 const url = "mongodb+srv://jaundev768:DevOps123@cluster-1.szlfag2.mongodb.net/";
 
+app.set('trust proxy', 1);
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -21,9 +22,9 @@ app.use(session({
     secret: 'Thisisoursecret.',
     resave: false,
     saveUninitialized: false,
-    domain: "https://client-kappa-rouge-53.vercel.app/", // or remove this line
     secure: false, // or remove this line
     cookie: {
+         domain: "https://client-kappa-rouge-53.vercel.app",
         maxAge: 1000 * 60 * 60 * 24, // Set your desired expiration time
     },
 }));
