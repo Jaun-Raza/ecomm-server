@@ -55,7 +55,8 @@ const userSchema = new mongoose.Schema({
         paymentMethod: String,
         isReturn: Boolean,
         isDelivered: Boolean,
-        date: String
+        date: String,
+        submissionDate: String
     }]
 });
 
@@ -94,7 +95,8 @@ const orderSchema = new mongoose.Schema({
     paymentMethod: String,
     isReturn: Boolean,
     isDelivered: Boolean,
-    date: String
+    date: String,
+    submissionDate: String
 })
 
 const Order = mongoose.model("orders", orderSchema);
@@ -146,14 +148,7 @@ app.get('/auth/google/callback',
 
 
 app.get('/', (req, res) => {
-
-        const userData = {
-            isAuthenticated: isAuthenticated,
-            email: isEmail,
-        }
-    res.send(userData);
-    
-    
+    res.send("Hello World!");
 })
 
 app.post('/signin', (req, res) => {
@@ -230,7 +225,8 @@ app.post('/ordersData', (req, res) => {
         paymentMethod: paymentMethod,
         isReturn: false,
         isDelivered: false,
-        date: formattedDateTime
+        date: formattedDateTime,
+        submissionDate: ""
     })
 
     newOrder.save();
@@ -320,9 +316,30 @@ app.post('/postAction', (req, res) => {
     const { email, userID, isReturn, isDelivered } = req.body;
 
     if (isReturn) {
+
+        // Create a new Date object
+    const currentDate = new Date();
+
+    // Adjust for Pakistan Standard Time (UTC+5)
+    const pstOffset = 5 * 60 * 60 * 1000; // 5 hours in milliseconds
+    const pstDate = new Date(currentDate.getTime() + pstOffset);
+
+    // Extract the components of the date and time
+    const year = pstDate.getFullYear();
+    const month = pstDate.getMonth() + 1; // Months are 0-based, so add 1
+    const day = pstDate.getDate();
+    const hours = pstDate.getHours();
+    const minutes = pstDate.getMinutes();
+    const seconds = pstDate.getSeconds();
+
+    // Format the date and time in the "YYYY-MM-DD HH:MM:SS" format
+    const formattedDateTime = `${year}-${month < 10 ? '0' : ''}${month}-${day < 10 ? '0' : ''}${day} ${hours < 10 ? '0' : ''}${hours}:${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+
+        
         Order.find({ userID: userID }).then((order) => {
             const getOrder = order[0];
             getOrder.isReturn = true;
+            getOrder.submissionDate = formattedDateTime;
             getOrder.save();
         })
 
@@ -337,6 +354,7 @@ app.post('/postAction', (req, res) => {
                 if (order) {
                     // Update the isReturn property
                     order.isReturn = true;
+                    order.submissionDate = formattedDateTime;
 
                     // Save the foundUser document
                     foundUser.save().then((updatedUser) => {
@@ -360,6 +378,7 @@ app.post('/postAction', (req, res) => {
         Order.find({ userID: userID }).then((order) => {
             const getOrder = order[0];
             getOrder.isDelivered = true;
+            getOrder.submissionDate = formattedDateTime;
             getOrder.save()
         })
 
@@ -374,6 +393,7 @@ app.post('/postAction', (req, res) => {
                 if (order) {
                     // Update the isReturn property
                     order.isDelivered = true;
+                    order.submissionDate = formattedDateTime;
 
                     // Save the foundUser document
                     foundUser.save().then((updatedUser) => {
