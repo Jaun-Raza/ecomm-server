@@ -110,7 +110,7 @@ var isEmail = "";
 passport.use(new GoogleStrategy({
     clientID: clientID,
     clientSecret: secretID,
-    callbackURL: "https://ecommserver-pado7k34.b4a.run/auth/google/callback"
+    callbackURL: "/auth/google/callback"
 },
     function (accessToken, refreshToken, profile, cb) {
         userName = profile.displayName;
