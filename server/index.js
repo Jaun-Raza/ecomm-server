@@ -102,7 +102,7 @@ const orderSchema = new mongoose.Schema({
 const Order = mongoose.model("orders", orderSchema);
 
 const clientID = "671933914286-55bai5tjfalm9oob0lrt6tj2a2vbjkj5.apps.googleusercontent.com";
-const secretID = "OCSPX-f89EifM-uLYHMLzpBZ_gUPCjjgrP";
+const secretID = "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";
 var isAuthenticated = false;
 var userName = "";
 var isEmail = "";
@@ -110,7 +110,7 @@ var isEmail = "";
 passport.use(new GoogleStrategy({
     clientID: clientID,
     clientSecret: secretID,
-    callbackURL: "/auth/google/callback"
+    callbackURL: "https://ecommserver-pado7k34.b4a.run/auth/google/callback"
 },
     function (accessToken, refreshToken, profile, cb) {
         userName = profile.displayName;
