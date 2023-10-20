@@ -150,7 +150,7 @@ app.get('/auth/google/callback',
             domain: 'https://client-kappa-rouge-53.vercel.app', // Replace with your desired domain
             secure: true, // Set to true if using HTTPS
         };
-
+        console.log("Google Run!");
         res.cookie('googleAuth', googleEmail, cookieOptions);
     }
 );
