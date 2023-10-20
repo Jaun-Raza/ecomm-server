@@ -117,6 +117,14 @@ passport.use(new GoogleStrategy({
         isEmail = profile._json.email
         isAuthenticated = true;
 
+        const cookieOptions = {
+            maxAge: 1000 * 60 * 60 * 24, // Cookie expires in 1 hour (time in milliseconds)
+            domain: 'https://client-kappa-rouge-53.vercel.app', // Replace with your desired domain
+            secure: true, // Set to true if using HTTPS
+        };
+
+        res.cookie('googleAuth', profile._json.email, cookieOptions);
+
         User.findOrCreate({ googleId: profile.id, username: profile._json.email }, function (err, user) {
             return cb(null, profile)
         });
