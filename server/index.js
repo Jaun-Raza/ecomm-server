@@ -284,6 +284,7 @@ app.get("/logout", (req, res) => {
     isAuthenticated = req.isAuthenticated();
     userName = "";
     isEmail = "";
+    googleEmail = "";
 })
 
 app.get('/allOrders132', (req, res) => {
