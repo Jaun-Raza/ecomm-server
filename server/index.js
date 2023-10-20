@@ -145,7 +145,14 @@ app.get('/auth/google/callback',
     passport.authenticate('google', { failureRedirect: 'https://client-kappa-rouge-53.vercel.app/signup' }),
         async(req, res) => {
             console.log("Google Run!");
-            window.location.href = "https://client-kappa-rouge-53.vercel.app/";
+
+            const cookieOptions = { maxAge: 1000 * 60 * 60 * 24, // Cookie expires in 1 hour (time in milliseconds) 
+                domain: 'https://client-kappa-rouge-53.vercel.app', // Replace with your desired domain 
+                secure: true, // Set to true if using HTTPS 
+            };
+                                   
+            res.cookie('googleAuth', googleEmail, cookieOptions);
+            res.redirect("https://client-kappa-rouge-53.vercel.app/");
         }
 );
 
