@@ -106,7 +106,6 @@ const secretID = "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";
 var isAuthenticated = false;
 var userName = "";
 var isEmail = "";
-var googleEmail = "";
 
 passport.use(new GoogleStrategy({
     clientID: clientID,
@@ -116,7 +115,6 @@ passport.use(new GoogleStrategy({
     function (accessToken, refreshToken, profile, cb) {
         userName = profile.displayName;
         isEmail = profile._json.email;
-        googleEmail = profile._json.email;
         isAuthenticated = true;
 
         User.findOrCreate({ googleId: profile.id, username: profile._json.email }, function (err, user) {
@@ -148,7 +146,7 @@ app.get('/auth/google/callback',
 
 
 app.get('/', (req, res) => {
-    res.send(googleEmail);
+    res.send("Hello World!");
 })
 
 app.post('/signin', (req, res) => {
