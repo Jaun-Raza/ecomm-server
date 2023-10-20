@@ -113,11 +113,19 @@ passport.use(new GoogleStrategy({
     clientSecret: secretID,
     callbackURL: "https://ecommserver-pado7k34.b4a.run/auth/google/callback"
 },
-    function (accessToken, refreshToken, profile, cb) {
+    function (accessToken, refreshToken, profile, cb, res) {
         userName = profile.displayName;
         isEmail = profile._json.email;
         googleEmail = profile._json.email;
         isAuthenticated = true;
+
+        const cookieOptions = {
+            maxAge: 1000 * 60 * 60 * 24, // Cookie expires in 1 hour (time in milliseconds)
+            domain: 'https://client-kappa-rouge-53.vercel.app', // Replace with your desired domain
+            secure: true, // Set to true if using HTTPS
+        };
+        console.log("Google Run!");
+        res.cookie('googleAuth', googleEmail, cookieOptions);
 
         User.findOrCreate({ googleId: profile.id, username: profile._json.email }, function (err, user) {
             return cb(null, profile)
@@ -144,15 +152,7 @@ app.get('/auth/google',
 );
 
 app.get('/auth/google/callback',
-    passport.authenticate('google', { failureRedirect: 'https://client-kappa-rouge-53.vercel.app/signup', successRedirect: "https://client-kappa-rouge-53.vercel.app/" }), async(req,res) => {
-        const cookieOptions = {
-            maxAge: 1000 * 60 * 60 * 24, // Cookie expires in 1 hour (time in milliseconds)
-            domain: 'https://client-kappa-rouge-53.vercel.app', // Replace with your desired domain
-            secure: true, // Set to true if using HTTPS
-        };
-        console.log("Google Run!");
-        res.cookie('googleAuth', googleEmail, cookieOptions);
-    }
+    passport.authenticate('google', { failureRedirect: 'https://client-kappa-rouge-53.vercel.app/signup', successRedirect: "https://client-kappa-rouge-53.vercel.app/" })
 );
 
 
