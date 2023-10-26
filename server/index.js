@@ -1,48 +1,35 @@
 import express from "express";
 import mongoose from "mongoose";
-import session from "express-session";
-import passport from 'passport';
-import passportLocalMongoose from "passport-local-mongoose";
-import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import findOrCreate from 'mongoose-findorcreate';
 import 'dotenv/config';
 import cookieParser from "cookie-parser";
-import cors from "cors";
+import { body, validationResult } from "express-validator";
+import bcrypt from 'bcrypt'
 
 const app = express();
-const port = 1000;
+const port = 5000;
 const dbName = "ecommDB";
-const url = "mongodb+srv://jaundev768:DevOps123@cluster-1.szlfag2.mongodb.net/";
+const url = "mongodb://127.0.0.1:27017/";
 
-app.set('trust proxy', 1);
-app.use(cors());
+app.use((req, res, next) => {
+    res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+    res.header(
+        "Access-Control-Allow-Headers",
+        "Origin, X-Requested-With, Content-Type, Accept"
+    );
+    next();
+})
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(session({
-    secret: 'Thisisoursecret.',
-    resave: false,
-    saveUninitialized: true,
-    secure: true, // or remove this line
-    cookie: {
-        maxAge: 1000 * 60 * 60 * 24, // Set your desired expiration time
-    },
-}));
-
 app.use(cookieParser());
-
 
 mongoose.connect(url + dbName, { useNewUrlParser: true });
 
 const userSchema = new mongoose.Schema({
     username: String,
-    email: {
-        type: String,
-        // required: true
-    },
-    password: {
-        type: String,
-        // required: true
-    },
+    number: Number,
+    address: String,
+    email: String,
+    password: String,
     googleId: String,
     orders: [{
         userID: String,
@@ -59,9 +46,6 @@ const userSchema = new mongoose.Schema({
         submissionDate: String
     }]
 });
-
-userSchema.plugin(passportLocalMongoose);
-userSchema.plugin(findOrCreate);
 
 
 const User = mongoose.model("User", userSchema);
@@ -101,93 +85,96 @@ const orderSchema = new mongoose.Schema({
 
 const Order = mongoose.model("orders", orderSchema);
 
-const clientID = "671933914286-55bai5tjfalm9oob0lrt6tj2a2vbjkj5.apps.googleusercontent.com";
-const secretID = "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";
-var isAuthenticated = false;
-var userName = "";
-var isEmail = "";
 
-passport.use(new GoogleStrategy({
-    clientID: clientID,
-    clientSecret: secretID,
-    callbackURL: "https://ecommserver-pado7k34.b4a.run/auth/google/callback"
-},
-    function (accessToken, refreshToken, profile, cb) {
-        userName = profile.displayName;
-        isEmail = profile._json.email;
-        isAuthenticated = true;
+// app.get('/auth/google',
+//     passport.authenticate('google', { scope: ['profile', 'email'] })
+// );
 
-        User.findOrCreate({ googleId: profile.id, username: profile._json.email }, function (err, user) {
-            return cb(null, profile)
-        });
-    }
-));
-
-
-passport.serializeUser(function (user, cb) {
-    cb(null, user);
-});
-
-passport.deserializeUser(function (user, cb) {
-    cb(null, user);
-});
-
-app.use(passport.initialize());
-app.use(passport.session());
-
-app.get('/auth/google',
-    passport.authenticate('google', { scope: ['profile', 'email'] })
-);
-
-app.get('/auth/google/callback',
-    passport.authenticate('google', { failureRedirect: 'https://client-kappa-rouge-53.vercel.app/signup', successRedirect: "https://client-kappa-rouge-53.vercel.app/"}),
-);
-
+// app.get('/auth/google/callback',
+//     passport.authenticate('google', { failureRedirect: 'http:localhost:3000/signup', successRedirect: "http:localhost:3000/"}),
+// );
 
 
 app.get('/', (req, res) => {
     res.send("Hello World!");
 })
 
-app.post('/signin', (req, res) => {
+app.post('/signin', [
+    body('email', 'Incorrect details!').isEmail(),
+    body('password', 'Password must be 8 characters!').isLength({ min: 8 })
+], async (req, res) => {
 
-    const { email, password } = req.body;
+    const result = validationResult(req);
+    if (!result.isEmpty()) {
+        return res.status(400).json({ errors: result.array() });
+    }
 
-    User.register({ username: email }, password, function (err, user) {
-        if (err) {
-            console.log(err);
-        } else {
-            passport.authenticate("local")(req, res, () => {
-                isAuthenticated = true;
-                isEmail = user.username;
+    try {
+
+        const { username, number, address, email, password } = req.body;
+
+        const saltRounds = await bcrypt.genSalt(10);
+        const setPassword = await bcrypt.hash(password, saltRounds)
+
+        
+        const user = new User({
+            username,
+            number,
+            address,
+            email,
+            password: setPassword
+        });
+
+        const isEmailExisted = await User.findOne({ email: email })
+
+        if (!isEmailExisted) {
+            await user.save().then((foundUser) => {
+                return res.status(200).json({ success: true, data: foundUser })
             })
+        } else {
+            return res.status(400).json({ success: false, message: "This Email already exists, try to Login." });
         }
-    })
+
+    } catch (error) {
+        return res.status(401).json({ success: false });
+    }
 
 
 })
 
-app.post('/login', async (req, res) => {
+app.post('/login', [
+    body('email', 'Incorrect details!').isEmail(),
+    body('password', 'Password must be 8 characters!').isLength({ min: 8 })
+], async (req, res) => {
 
-    const { email, password } = req.body;
-
-    const user = new User({
-        username: email,
-        password: password
-    })
-
-    if (email !== "" && password !== "") {
-        req.login(user, function (err) {
-            if (err) {
-                console.log(err);
-            } else {
-                passport.authenticate("local")(req, res, () => {
-                    isAuthenticated = req.isAuthenticated();
-                    isEmail = email;
-                })
-            }
-        })
+    const result = validationResult(req);
+    if (!result.isEmpty()) {
+        return res.status(400).json({ errors: result.array() });
     }
+
+    try {
+
+        const { email, password } = req.body;
+
+        const userData = await User.findOne({ email: email })
+
+        if (userData) {
+            const match = await bcrypt.compare(password, userData.password);
+
+            if (!match) {
+                return res.status(400).json({ success: false, message: "Incorrect Password" });
+            }
+
+            return res.status(200).json({ success: true, data: userData });
+
+        } else {
+            return res.status(400).json({ success: false, message: "This User is not exists, try to Signup." });
+        }
+
+    } catch (error) {
+        return res.status(401).json({ success: false });
+    }
+
 })
 
 
@@ -229,7 +216,7 @@ app.post('/ordersData', (req, res) => {
 
     newOrder.save();
 
-    User.find({ username: email }).then((foundUser) => {
+    User.find({ email: email }).then((foundUser) => {
         foundUser[0].orders.push(newOrder)
         foundUser[0].save().then(() => {
             res.status(200)
@@ -240,15 +227,14 @@ app.post('/ordersData', (req, res) => {
 })
 
 app.get('/myOrders', (req, res) => {
-    if (isEmail !== "") {
-        User.find({}).then((foundOrder) => {
-            res.send(foundOrder)
-        })
-    }
+    User.find({}).then((foundOrder) => {
+        res.send(foundOrder)
+    })
 })
 
 
 app.get('/productsData', (req, res) => {
+    console.log("prod");
     try {
         Product.find({}).then((foundData) => {
             res.send(foundData)
@@ -269,20 +255,7 @@ app.get('/productsData/:id', (req, res) => {
 })
 
 app.get("/logout", (req, res) => {
-    req.logout((err) => {
-        if (err) {
-            console.log(err);
-        } else {
-            res.status(200);
-        }
-    });
-
-    console.log('run');
-
-    isAuthenticated = req.isAuthenticated();
-    userName = "";
-    isEmail = "";
-    googleEmail = "";
+    res.status(200).json({message : "Logout"});
 })
 
 app.get('/allOrders132', (req, res) => {
@@ -294,13 +267,11 @@ app.get('/allOrders132', (req, res) => {
 })
 
 app.get('/orders/:id', (req, res) => {
-    if (isEmail !== "") {
-        User.find({}).then((foundUser) => {
-            res.send(foundUser);
-        }).catch(err => {
-            console.log(err);
-        })
-    }
+    User.find({}).then((foundUser) => {
+        res.send(foundUser);
+    }).catch(err => {
+        console.log(err);
+    })
 })
 
 app.get('/allOrders/:id', (req, res) => {
@@ -315,35 +286,35 @@ app.post('/postAction', (req, res) => {
     const { email, userID, isReturn, isDelivered } = req.body;
 
     if (isReturn) {
-        
+
         Order.find({ userID: userID }).then((order) => {
             const getOrder = order[0];
             getOrder.isReturn = true;
 
-             // Create a new Date object
-    const currentDate = new Date();
+            // Create a new Date object
+            const currentDate = new Date();
 
-    // Adjust for Pakistan Standard Time (UTC+5)
-    const pstOffset = 5 * 60 * 60 * 1000; // 5 hours in milliseconds
-    const pstDate = new Date(currentDate.getTime() + pstOffset);
+            // Adjust for Pakistan Standard Time (UTC+5)
+            const pstOffset = 5 * 60 * 60 * 1000; // 5 hours in milliseconds
+            const pstDate = new Date(currentDate.getTime() + pstOffset);
 
-    // Extract the components of the date and time
-    const year = pstDate.getFullYear();
-    const month = pstDate.getMonth() + 1; // Months are 0-based, so add 1
-    const day = pstDate.getDate();
-    const hours = pstDate.getHours();
-    const minutes = pstDate.getMinutes();
-    const seconds = pstDate.getSeconds();
+            // Extract the components of the date and time
+            const year = pstDate.getFullYear();
+            const month = pstDate.getMonth() + 1; // Months are 0-based, so add 1
+            const day = pstDate.getDate();
+            const hours = pstDate.getHours();
+            const minutes = pstDate.getMinutes();
+            const seconds = pstDate.getSeconds();
 
-    // Format the date and time in the "YYYY-MM-DD HH:MM:SS" format
-    const formattedDateTime = `${year}-${month < 10 ? '0' : ''}${month}-${day < 10 ? '0' : ''}${day} ${hours < 10 ? '0' : ''}${hours}:${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            // Format the date and time in the "YYYY-MM-DD HH:MM:SS" format
+            const formattedDateTime = `${year}-${month < 10 ? '0' : ''}${month}-${day < 10 ? '0' : ''}${day} ${hours < 10 ? '0' : ''}${hours}:${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 
-            
+
             getOrder.submissionDate = formattedDateTime;
             getOrder.save();
         })
 
-        User.find({ username: email }).then((foundUsers) => {
+        User.find({ email: email }).then((foundUsers) => {
             if (foundUsers.length > 0) {
                 const foundUser = foundUsers[0];
                 const getUser = foundUser.orders;
@@ -355,25 +326,25 @@ app.post('/postAction', (req, res) => {
                     // Update the isReturn property
                     order.isReturn = true;
 
-                     // Create a new Date object
-    const currentDate = new Date();
+                    // Create a new Date object
+                    const currentDate = new Date();
 
-    // Adjust for Pakistan Standard Time (UTC+5)
-    const pstOffset = 5 * 60 * 60 * 1000; // 5 hours in milliseconds
-    const pstDate = new Date(currentDate.getTime() + pstOffset);
+                    // Adjust for Pakistan Standard Time (UTC+5)
+                    const pstOffset = 5 * 60 * 60 * 1000; // 5 hours in milliseconds
+                    const pstDate = new Date(currentDate.getTime() + pstOffset);
 
-    // Extract the components of the date and time
-    const year = pstDate.getFullYear();
-    const month = pstDate.getMonth() + 1; // Months are 0-based, so add 1
-    const day = pstDate.getDate();
-    const hours = pstDate.getHours();
-    const minutes = pstDate.getMinutes();
-    const seconds = pstDate.getSeconds();
+                    // Extract the components of the date and time
+                    const year = pstDate.getFullYear();
+                    const month = pstDate.getMonth() + 1; // Months are 0-based, so add 1
+                    const day = pstDate.getDate();
+                    const hours = pstDate.getHours();
+                    const minutes = pstDate.getMinutes();
+                    const seconds = pstDate.getSeconds();
 
-    // Format the date and time in the "YYYY-MM-DD HH:MM:SS" format
-    const formattedDateTime = `${year}-${month < 10 ? '0' : ''}${month}-${day < 10 ? '0' : ''}${day} ${hours < 10 ? '0' : ''}${hours}:${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                    // Format the date and time in the "YYYY-MM-DD HH:MM:SS" format
+                    const formattedDateTime = `${year}-${month < 10 ? '0' : ''}${month}-${day < 10 ? '0' : ''}${day} ${hours < 10 ? '0' : ''}${hours}:${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 
-                    
+
                     order.submissionDate = formattedDateTime;
 
                     // Save the foundUser document
@@ -399,30 +370,30 @@ app.post('/postAction', (req, res) => {
             const getOrder = order[0];
             getOrder.isDelivered = true;
 
-             // Create a new Date object
-    const currentDate = new Date();
+            // Create a new Date object
+            const currentDate = new Date();
 
-    // Adjust for Pakistan Standard Time (UTC+5)
-    const pstOffset = 5 * 60 * 60 * 1000; // 5 hours in milliseconds
-    const pstDate = new Date(currentDate.getTime() + pstOffset);
+            // Adjust for Pakistan Standard Time (UTC+5)
+            const pstOffset = 5 * 60 * 60 * 1000; // 5 hours in milliseconds
+            const pstDate = new Date(currentDate.getTime() + pstOffset);
 
-    // Extract the components of the date and time
-    const year = pstDate.getFullYear();
-    const month = pstDate.getMonth() + 1; // Months are 0-based, so add 1
-    const day = pstDate.getDate();
-    const hours = pstDate.getHours();
-    const minutes = pstDate.getMinutes();
-    const seconds = pstDate.getSeconds();
+            // Extract the components of the date and time
+            const year = pstDate.getFullYear();
+            const month = pstDate.getMonth() + 1; // Months are 0-based, so add 1
+            const day = pstDate.getDate();
+            const hours = pstDate.getHours();
+            const minutes = pstDate.getMinutes();
+            const seconds = pstDate.getSeconds();
 
-    // Format the date and time in the "YYYY-MM-DD HH:MM:SS" format
-    const formattedDateTime = `${year}-${month < 10 ? '0' : ''}${month}-${day < 10 ? '0' : ''}${day} ${hours < 10 ? '0' : ''}${hours}:${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+            // Format the date and time in the "YYYY-MM-DD HH:MM:SS" format
+            const formattedDateTime = `${year}-${month < 10 ? '0' : ''}${month}-${day < 10 ? '0' : ''}${day} ${hours < 10 ? '0' : ''}${hours}:${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 
-            
+
             getOrder.submissionDate = formattedDateTime;
             getOrder.save()
         })
 
-        User.find({ username: email }).then((foundUsers) => {
+        User.find({ email: email }).then((foundUsers) => {
             if (foundUsers.length > 0) {
                 const foundUser = foundUsers[0];
                 const getUser = foundUser.orders;
@@ -434,25 +405,25 @@ app.post('/postAction', (req, res) => {
                     // Update the isReturn property
                     order.isDelivered = true;
 
-                     // Create a new Date object
-    const currentDate = new Date();
+                    // Create a new Date object
+                    const currentDate = new Date();
 
-    // Adjust for Pakistan Standard Time (UTC+5)
-    const pstOffset = 5 * 60 * 60 * 1000; // 5 hours in milliseconds
-    const pstDate = new Date(currentDate.getTime() + pstOffset);
+                    // Adjust for Pakistan Standard Time (UTC+5)
+                    const pstOffset = 5 * 60 * 60 * 1000; // 5 hours in milliseconds
+                    const pstDate = new Date(currentDate.getTime() + pstOffset);
 
-    // Extract the components of the date and time
-    const year = pstDate.getFullYear();
-    const month = pstDate.getMonth() + 1; // Months are 0-based, so add 1
-    const day = pstDate.getDate();
-    const hours = pstDate.getHours();
-    const minutes = pstDate.getMinutes();
-    const seconds = pstDate.getSeconds();
+                    // Extract the components of the date and time
+                    const year = pstDate.getFullYear();
+                    const month = pstDate.getMonth() + 1; // Months are 0-based, so add 1
+                    const day = pstDate.getDate();
+                    const hours = pstDate.getHours();
+                    const minutes = pstDate.getMinutes();
+                    const seconds = pstDate.getSeconds();
 
-    // Format the date and time in the "YYYY-MM-DD HH:MM:SS" format
-    const formattedDateTime = `${year}-${month < 10 ? '0' : ''}${month}-${day < 10 ? '0' : ''}${day} ${hours < 10 ? '0' : ''}${hours}:${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+                    // Format the date and time in the "YYYY-MM-DD HH:MM:SS" format
+                    const formattedDateTime = `${year}-${month < 10 ? '0' : ''}${month}-${day < 10 ? '0' : ''}${day} ${hours < 10 ? '0' : ''}${hours}:${minutes < 10 ? '0' : ''}${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 
-                    
+
                     order.submissionDate = formattedDateTime;
 
                     // Save the foundUser document
