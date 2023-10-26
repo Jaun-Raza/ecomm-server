@@ -8,7 +8,7 @@ import bcrypt from 'bcrypt'
 const app = express();
 const port = 1000;
 const dbName = "ecommDB";
-const url = "mongodb://127.0.0.1:27017/";
+const url = "mongodb+srv://jaundev768:DevOps123@cluster-1.szlfag2.mongodb.net/";
 
 app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", "https://client-kappa-rouge-53.vercel.app");
