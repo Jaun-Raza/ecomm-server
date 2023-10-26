@@ -6,7 +6,7 @@ import { body, validationResult } from "express-validator";
 import bcrypt from 'bcrypt'
 
 const app = express();
-const port = 5000;
+const port = 1000;
 const dbName = "ecommDB";
 const url = "mongodb://127.0.0.1:27017/";
 
