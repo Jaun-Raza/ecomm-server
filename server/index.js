@@ -11,7 +11,7 @@ const dbName = "ecommDB";
 const url = "mongodb://127.0.0.1:27017/";
 
 app.use((req, res, next) => {
-    res.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+    res.setHeader("Access-Control-Allow-Origin", "https://client-kappa-rouge-53.vercel.app");
     res.header(
         "Access-Control-Allow-Headers",
         "Origin, X-Requested-With, Content-Type, Accept"
