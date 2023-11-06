@@ -2,7 +2,7 @@
 FROM node
 
 # Create a working directory for your application
-WORKDIR /usr/src/app
+WORKDIR /usr/app
 
 # Copy only the package.json and package-lock.json files to leverage Docker layer caching
 COPY package*.json ./
