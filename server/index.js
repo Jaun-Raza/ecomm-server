@@ -10,14 +10,14 @@ const port = 1000;
 const dbName = "ecommDB";
 const url = "mongodb+srv://jaundev768:DevOps123@cluster-1.szlfag2.mongodb.net/";
 
-// app.use((req, res, next) => {
-//     res.setHeader("Access-Control-Allow-Origin", "");
-//     res.header(
-//         "Access-Control-Allow-Headers",
-//         "Origin, X-Requested-With, Content-Type, Accept"
-//     );
-//     next();
-// })
+app.use((req, res, next) => {
+    res.setHeader("Access-Control-Allow-Origin", "https://client-kappa-rouge-53.vercel.app");
+    res.header(
+        "Access-Control-Allow-Headers",
+        "Origin, X-Requested-With, Content-Type, Accept"
+    );
+    next();
+})
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
