@@ -14,7 +14,7 @@ RUN npm ci
 COPY . .
 
 # Expose the port your application will run on (adjust as needed)
-EXPOSE 3000
+EXPOSE 1000
 
 # Start your application (modify the entry point based on your project structure)
 CMD ["node", "index.js"]
